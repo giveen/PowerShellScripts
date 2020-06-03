@@ -1,0 +1,29 @@
+$ADcomputers = Get-ADComputer -SearchBase "DC=company,DC=edu" -Filter {Enabled -eq $True -and OperatingSystem -notlike '*Server*'} | forEach-Object {$_.Name}
+
+$PingCompList = $ADcomputers | Invoke-Ping
+
+
+$User = "domain\user"
+$Pass = ConvertTo-SecureString "Passwowrd" -AsPlainText -Force
+$Credentials = New-Object System.Management.Automation.PSCredential -ArgumentList $User,$Pass
+$command = { $ZoomProc = Get-Process -name Zoom -ErrorAction "Ignore"
+if ($ZoomProc -ne $null) {
+   echo "Stopping Zoom..."
+   Stop-Process -Name Zoom
+} else {
+   echo "No running Zoom process found"
+    }
+}
+
+
+
+foreach ($computer in $PingCompList){
+    if ($computer.STATUS -eq "Responding") 
+    {
+        Invoke-Command -AsJob -ComputerName $computer.Address -ScriptBlock $command -Credential $Credentials
+        write-host -foregroundcolor "Green" "Running on: " $computer.Address
+    }
+    else{
+        Write-host -foregroundcolor "Red" $computer.Address "is offline" -InformationAction Ignore  
+    }   
+}
