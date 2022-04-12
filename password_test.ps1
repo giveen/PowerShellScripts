@@ -5,7 +5,7 @@
 
 $domain = "contoso.com"
 #You will need a CSV file with a header Username,Password
-$data = import-csv 'c:\temppwlist.csv'
+$data = import-csv 'c:\temp\pwlist.csv'
 $i = 0
 
 foreach ($row in $data) {
